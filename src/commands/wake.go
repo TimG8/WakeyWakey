@@ -10,12 +10,12 @@ import (
 
 var Wake = discordgo.ApplicationCommand{
 	Name:        "wake",
-	Description: "Sends a Wake-on-LAN packet to wake up your PC.",
+	Description: "Sends a Wake-on-LAN packet to wake up your device.",
 	Options: []*discordgo.ApplicationCommandOption{
 		{
 			Type: discordgo.ApplicationCommandOptionString,
 			Name: "alias",
-			Description: "The Alias of the PC to wake up.",
+			Description: "The Alias of the device to wake up.",
 			Required: true,
 			Autocomplete: true,
 		},
@@ -35,7 +35,7 @@ func HandleWake(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Data: &discordgo.InteractionResponseData{
 				Flags: 1 << 6,
 				Embeds: []*discordgo.MessageEmbed{
-					utils.EmbedError("No PC registered", "No PC registered with alias '" + alias + "': " + err.Error()),
+					utils.EmbedError("No device registered", "No device registered with alias '" + alias + "': " + err.Error()),
 				},
 			},
 		})

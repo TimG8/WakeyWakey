@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"wakeywakey/database"
 	"wakeywakey/utils"
 
@@ -10,12 +9,12 @@ import (
 
 var UnregisterWake = discordgo.ApplicationCommand{
 	Name:        "unregister",
-	Description: "Unregisters a PC by its alias for Wake-on-LAN.",
+	Description: "Unregisters a device by its alias for Wake-on-LAN.",
 	Options: []*discordgo.ApplicationCommandOption{
 		{
 			Type: discordgo.ApplicationCommandOptionString,
 			Name: "alias",
-			Description: "The alias of the PC to unregister.",
+			Description: "The alias of the device to unregister.",
 			Required: true,
 		},
 	},
@@ -33,7 +32,7 @@ func HandleUnregister(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Data: &discordgo.InteractionResponseData{
 				Flags: 1 << 6,
 				Embeds: []*discordgo.MessageEmbed{
-					utils.EmbedError("Unregistration Failed", "Failed to unregister PC: "+err.Error()),
+					utils.EmbedError("Unregistration Failed", "Failed to unregister device : "+err.Error()),
 				},
 			},
 		})
@@ -45,16 +44,14 @@ func HandleUnregister(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		Data: &discordgo.InteractionResponseData{
 			Flags: 1 << 6,
 			Embeds: []*discordgo.MessageEmbed{
-				utils.EmbedSuccess("Unregistration Successful", "Successfully unregistered PC."),
+				utils.EmbedSuccess("Unregistration Successful", "Successfully unregistered device."),
 			},
 		},
 	})
 }
 
 func HandleUnregisterAutocomplete(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	userId := i.Member.User.ID
-
-	entries, err := database.GetAllEntriesByUserId(userId)
+	entries, err := database.GetAllEntriesByUserId(i.Member.User.ID)
 	if err != nil {
 		return
 	}
@@ -66,8 +63,6 @@ func HandleUnregisterAutocomplete(s *discordgo.Session, i *discordgo.Interaction
 			Value: entry.Alias,
 		})
 	}
-
-	fmt.Println("Provided autocomplete choices for user " + i.Member.User.Username + " (" + i.Member.User.ID + ")")
 
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionApplicationCommandAutocompleteResult,

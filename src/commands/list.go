@@ -10,7 +10,7 @@ import (
 
 var ListDevices = discordgo.ApplicationCommand{
 	Name:        "list",
-	Description: "Lists all registered PCs for Wake-on-LAN.",
+	Description: "Lists all registered devices for Wake-on-LAN.",
 }
 
 func HandleListDevices(s *discordgo.Session, i *discordgo.InteractionCreate) {

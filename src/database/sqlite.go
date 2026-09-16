@@ -29,12 +29,12 @@ func Init(dbPath string) error {
 		err = db.Ping()
 	})
 
-	db.Exec("CREATE TABLE IF NOT EXISTS wakes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, alias TEXT NOT NULL, ip_address TEXT NOT NULL, mac_address TEXT NOT NULL)")
+	db.Exec("CREATE TABLE IF NOT EXISTS wakes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, global INTEGER NOT NULL, alias TEXT NOT NULL, ip_address TEXT NOT NULL, mac_address TEXT NOT NULL)")
 
 	return err
 }
 
-func AddWakeEntry(userId string, alias string, ip string, mac string) error {
+func AddWakeEntry(userId string, global bool, alias string, ip string, mac string) error {
 	if db == nil {
 		return fmt.Errorf("Database not initialized")
 	}
@@ -51,7 +51,7 @@ func AddWakeEntry(userId string, alias string, ip string, mac string) error {
 		return fmt.Errorf("%s", "Alias " + alias + " already exists")
 	}
 
-	_, err = db.Exec("INSERT INTO wakes (user_id, alias, ip_address, mac_address) VALUES (?, ?, ?, ?)", userId, alias, ip, mac)
+	_, err = db.Exec("INSERT INTO wakes (user_id, global, alias, ip_address, mac_address) VALUES (?, ?, ?, ?, ?)", userId, global, alias, ip, mac)
 	return err
 }
 
@@ -75,7 +75,7 @@ func GetAllEntriesByUserId(userId string) ([]WakeEntry, error) {
 		return nil, fmt.Errorf("Database not initialized")
 	}
 
-	rows, err := db.Query("SELECT alias, ip_address, mac_address FROM wakes WHERE user_id = ?", userId)
+	rows, err := db.Query("SELECT alias, ip_address, mac_address FROM wakes WHERE user_id = ? OR global = 1", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func GetMacByAlias(userId string, alias string) (string, error) {
 	}
 
 	var mac string
-	err := db.QueryRow("SELECT mac_address FROM wakes WHERE user_id = ? AND alias = ?", userId, alias).Scan(&mac)
+	err := db.QueryRow("SELECT mac_address FROM wakes WHERE (user_id = ? OR global = 1) AND alias = ?", userId, alias).Scan(&mac)
 	if err != nil {
 		return "", err
 	}
@@ -113,7 +113,7 @@ func GetIpByAlias(userId string, alias string) (string, error) {
 	}
 
 	var ip string
-	err := db.QueryRow("SELECT ip_address FROM wakes WHERE user_id = ? AND alias = ?", userId, alias).Scan(&ip)
+	err := db.QueryRow("SELECT ip_address FROM wakes WHERE (user_id = ? OR global = 1) AND alias = ?", userId, alias).Scan(&ip)
 	if err != nil {
 		return "", err
 	}

@@ -60,8 +60,6 @@ func HandleSleepDevice(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	fmt.Println("Put " + alias + " to sleep for user " + i.Member.User.Username + " (" + i.Member.User.ID + ")")
-
 	s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Embeds: &[]*discordgo.MessageEmbed{
 			utils.EmbedSuccess("Device going to sleep", "`" + alias + "` is entering sleep mode."),
