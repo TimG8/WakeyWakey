@@ -29,12 +29,12 @@ func Init(dbPath string) error {
 		err = db.Ping()
 	})
 
-	db.Exec("CREATE TABLE IF NOT EXISTS wakes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, alias TEXT NOT NULL, mac_address TEXT NOT NULL)")
+	db.Exec("CREATE TABLE IF NOT EXISTS wakes (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT NOT NULL, alias TEXT NOT NULL, ip_address TEXT NOT NULL, mac_address TEXT NOT NULL)")
 
 	return err
 }
 
-func AddWakeEntry(userId string, alias string, mac string) error {
+func AddWakeEntry(userId string, alias string, ip string, mac string) error {
 	if db == nil {
 		return fmt.Errorf("Database not initialized")
 	}
@@ -51,7 +51,7 @@ func AddWakeEntry(userId string, alias string, mac string) error {
 		return fmt.Errorf("%s", "Alias " + alias + " already exists")
 	}
 
-	_, err = db.Exec("INSERT INTO wakes (user_id, alias, mac_address) VALUES (?, ?, ?)", userId, alias, mac)
+	_, err = db.Exec("INSERT INTO wakes (user_id, alias, ip_address, mac_address) VALUES (?, ?, ?, ?)", userId, alias, ip, mac)
 	return err
 }
 
@@ -66,6 +66,7 @@ func RemoveWakeEntryByAlias(userId string, alias string) error {
 
 type WakeEntry struct {
 	Alias      string
+	IpAddress  string
 	MacAddress string
 }
 
@@ -74,7 +75,7 @@ func GetAllEntriesByUserId(userId string) ([]WakeEntry, error) {
 		return nil, fmt.Errorf("Database not initialized")
 	}
 
-	rows, err := db.Query("SELECT alias, mac_address FROM wakes WHERE user_id = ?", userId)
+	rows, err := db.Query("SELECT alias, ip_address, mac_address FROM wakes WHERE user_id = ?", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +84,7 @@ func GetAllEntriesByUserId(userId string) ([]WakeEntry, error) {
 	var entries []WakeEntry
 	for rows.Next() {
 		var entry WakeEntry
-		if err := rows.Scan(&entry.Alias, &entry.MacAddress); err != nil {
+		if err := rows.Scan(&entry.Alias, &entry.IpAddress, &entry.MacAddress); err != nil {
 			return nil, err
 		}
 		entries = append(entries, entry)
@@ -104,4 +105,18 @@ func GetMacByAlias(userId string, alias string) (string, error) {
 	}
 
 	return mac, nil
+}
+
+func GetIpByAlias(userId string, alias string) (string, error) {
+	if db == nil {
+		return "", fmt.Errorf("Database not initialized")
+	}
+
+	var ip string
+	err := db.QueryRow("SELECT ip_address FROM wakes WHERE user_id = ? AND alias = ?", userId, alias).Scan(&ip)
+	if err != nil {
+		return "", err
+	}
+
+	return ip, nil
 }

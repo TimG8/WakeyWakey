@@ -1,16 +1,19 @@
 services:
-  wakeywakey:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: wakeywakey
-    environment:
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
-      - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
-      - SELF_USER_ID=${SELF_USER_ID}
-    restart: unless-stopped
-    network_mode: "host"
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./data:/app/data
+    wakeywakey:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: wakeywakey
+        environment:
+            - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+            - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
+            - SELF_USER_ID=${SELF_USER_ID}
+        restart: unless-stopped
+        network_mode: "host"
+        cap_add:
+            - NET_ADMIN
+        volumes:
+            - ./data:/app/data
+            - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519:ro
+            - ~/.ssh/id_ed25519.pub:/root/.ssh/id_ed25519.pub:ro
+            - ~/.ssh/config:/root/.ssh/config:ro

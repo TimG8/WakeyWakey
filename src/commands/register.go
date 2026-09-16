@@ -20,6 +20,12 @@ var RegisterWake = discordgo.ApplicationCommand{
 		},
 		{
 			Type: discordgo.ApplicationCommandOptionString,
+			Name: "ip-address",
+			Description: "With the following format : user@ip_adress",
+			Required: true,
+		},
+		{
+			Type: discordgo.ApplicationCommandOptionString,
 			Name: "mac-address",
 			Description: "The MAC address of the PC to register.",
 			Required: true,
@@ -31,9 +37,10 @@ func HandleRegister(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	options := i.ApplicationCommandData().Options
 	alias := options[0].StringValue()
-	macAddress := options[1].StringValue()
+	ipAddress := options[1].StringValue()
+	macAddress := options[2].StringValue()
 
-	err := database.AddWakeEntry(i.Member.User.ID, alias, macAddress)
+	err := database.AddWakeEntry(i.Member.User.ID, alias, ipAddress, macAddress)
 	if err != nil {
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -47,7 +54,7 @@ func HandleRegister(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		return
 	}
 
-	fmt.Println("Handled registration for user " + i.Member.User.Username + " (" + i.Member.User.ID + "): " + alias + " - " + macAddress)
+	fmt.Println("Handled registration for user " + i.Member.User.Username + " (" + i.Member.User.ID + "): " + alias + " - " + ipAddress + " - " + macAddress)
 
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,

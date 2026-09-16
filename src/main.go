@@ -84,6 +84,8 @@ func main() {
 						commands.HandleWakeAutocomplete(session, interaction)
 					case "unregister":
 						commands.HandleUnregisterAutocomplete(session, interaction)
+					case "sleep":
+						commands.HandleSleepAutocomplete(session, interaction)
 				}
 			}
 
@@ -97,6 +99,8 @@ func main() {
 						commands.HandleUnregister(session, interaction)
 					case "list":
 						commands.HandleListDevices(session, interaction)
+					case "sleep":
+						commands.HandleSleepDevice(session, interaction)
 				}
 			}
 
@@ -124,6 +128,11 @@ func main() {
 		}
 
 		_, err = session.ApplicationCommandCreate(appId, GUILD_ID, &commands.ListDevices)
+		if err != nil {
+			panic("Failed to register command: " + err.Error())
+		}
+
+		_, err = session.ApplicationCommandCreate(appId, GUILD_ID, &commands.SleepDevice)
 		if err != nil {
 			panic("Failed to register command: " + err.Error())
 		}

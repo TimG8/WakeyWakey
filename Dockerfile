@@ -8,6 +8,7 @@ FROM alpine:3.20
 
 WORKDIR /bot
 RUN apk add --no-cache awake
+RUN apk add --no-cache openssh-client
 
 COPY --from=build /bot/wakeywakey .
 
